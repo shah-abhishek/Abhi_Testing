@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <head>
   <script src="https://cdn.jsdelivr.net/npm/vega@5.22.1"></script>
   <script src="https://cdn.jsdelivr.net/npm/vega-lite@5.2.0"></script>
@@ -14,7 +13,6 @@
     <option value="334702- AFT COMBO POSITION AND ANTI">334702</option>
     <option value="235112- DIGITAL AUDIO PANEL - AV-900">235112</option>
 </select>
-
   <div id="vis"></div>
   <div id="removals" style="width: 100%; height: 100%; float:down;"></div>
   </body>
@@ -30,7 +28,6 @@ function range(start, stop, step, aLen) {
       while (b < stop) {
           a.push(b += step || 1);}
       return a;}
-
 // func to get array of ata to show along with selected ata in the middle.
 function getAxisValues(xSelect, data){
   index = data.findIndex(x => x.ataDesc === xSelect);
