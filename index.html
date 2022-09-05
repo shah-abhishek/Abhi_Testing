@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/vega@5.22.1"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-lite@5.2.0"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-embed@6.20.8"></script>
+</head>
+<body>
+	<input type="button" value="sort" onClick="fn3()"/>
+	<select id="ataDemo" onchange="detectChange(this)">
+	<option value="">Search</option>
+    <option value="253112- COFFEE MAKER - 115V, 400HZ, 2785W">253112</option>
+    <option value="441301- PA HANDSET/CRADLE (WHITE)">441301</option>
+    <option value="334702- AFT COMBO POSITION AND ANTI">334702</option>
+    <option value="235112- DIGITAL AUDIO PANEL - AV-900">235112</option>
+</select>
+
+  <div id="vis"></div>
+  <div id="removals" style="width: 100%; height: 100%; float:down;"></div>
+  </body>
+  <script>
+mainGraph()
+// func to get range of ata value indices 
+function range(start, stop, step, aLen) {
+      if (start < 0) {
+          start = 0;} 
+      if (stop > aLen) {
+          stop = aLen;}     
+      var a = [start], b = start;
+      while (b < stop) {
+          a.push(b += step || 1);}
+      return a;}
+
+// func to get array of ata to show along with selected ata in the middle.
+function getAxisValues(xSelect, data){
+  index = data.findIndex(x => x.ataDesc === xSelect);
+  const startIndex= index - 10
+  const endIndex= index + 10
+  const arrayLen = data.length - 1
+
+  selectList = range(start=startIndex, stop=endIndex, step=1, aLen=arrayLen)
+  var final = []; 
+  selectList.forEach(function(number) {
+      const xValue = data[number].ataDesc
+      final.push(xValue);
+  });
+  return final
+}
+
+function detectChange(ataSelected) {
+  const ataColor = ataSelected.value;
+  var data = [
+        {"ataDesc": "253112- COFFEE MAKER - 115V, 400HZ, 2785W", "pur": 252},
+        {"ataDesc": "441301- PA HANDSET/CRADLE (WHITE)", "pur": 174},
+        {"ataDesc": "334702- AFT COMBO POSITION AND ANTI", "pur": 113},
+        {"ataDesc": "316101- EICAS DISPLAY UNIT (104)", "pur": 108},
+        {"ataDesc": "353002- 312 LITER OXYGEN BOTTLE", "pur": 95},
+        {"ataDesc": "324907- CARBON BRAKES ASSY", "pur": 91},
+        {"ataDesc": "252112- PAX SEAT, DOUBLE", "pur": 75},
+        {"ataDesc": "334303- FWD POSITION LED LIGHT RIGHT", "pur": 74},
+        {"ataDesc": "381107- FAUCET, WALL MOUNT, LAVATORY", "pur": 68},
+        {"ataDesc": "334701- EWT FWD ANTI-COL LED LIGHT", "pur": 62},
+        {"ataDesc": "251101- PILOT SEAT", "pur": 60},
+        {"ataDesc": "341501- SENSOR, TOTAL TEMP", "pur": 57},
+        {"ataDesc": "383103- DRAIN MAST, HEATED", "pur": 55},
+        {"ataDesc": "361101- BLEED PRSOV", "pur": 52},
+        {"ataDesc": "232403- TP4840 PRINTER", "pur": 52},
+        {"ataDesc": "351003- MASKASSY", "pur": 50},
+        {"ataDesc": "308101- ICE DETECTOR", "pur": 48},
+        {"ataDesc": "256004- LIFE JACKET", "pur": 47},
+        {"ataDesc": "525110- STRUCTURE, COCKPIT DOOR", "pur": 45},
+        {"ataDesc": "346102- CONTROL DISPLAY UNIT", "pur": 39},
+        {"ataDesc": "341301- INT PITOT/STATIC/AOA SENSOR", "pur": 39},
+        {"ataDesc": "293302- SW, HYDRAULIC FLUID TEMP", "pur": 38},
+        {"ataDesc": "753002- OPERABILITY BLEED START -VLV", "pur": 35},
+        {"ataDesc": "231204- VHF DIGITAL RADIO-VDR", "pur": 34},
+        {"ataDesc": "235112- DIGITAL AUDIO PANEL - AV-900", "pur": 29},
+        {"ataDesc": "343101- KRA", "pur": 28},
+        {"ataDesc": "314110- GENERIC I/O MODULE", "pur": 28},
+        {"ataDesc": "243608- BATTERY - 24V, 27 AH, NI-CD", "pur": 27},
+        {"ataDesc": "351002- BOX ASSY-STOWAGE, OXYGEN MASKS", "pur": 26},
+        {"ataDesc": "334304- EWT INTEGRATED LED LIGHT", "pur": 25},
+        {"ataDesc": "761105- THRUST CONTROL QUADRANT", "pur": 24},
+        {"ataDesc": "716110- INLET ASSY", "pur": 24},
+        {"ataDesc": "494101- EXCITER", "pur": 24},
+        {"ataDesc": "256007- EMERGENCY EVACUATION SLIDE", "pur": 24},
+        {"ataDesc": "324701- BRAKE TEMPERATURE SENSOR", "pur": 21},
+        {"ataDesc": "531403- NOSE RADOME", "pur": 20},
+        {"ataDesc": "343108- VIDL MODULE", "pur": 20},
+        {"ataDesc": "246102- DC POWER MODULE, SPDA", "pur": 20},
+        {"ataDesc": "242102- CONTROL UNITY, GENERATOR", "pur": 20},
+        {"ataDesc": "525109- ELEC-MECHANICAL DR LATCH", "pur": 19},
+        {"ataDesc": "493102- MODULE, FUEL", "pur": 19},
+        {"ataDesc": "334305- POWER SUPPLY ACL/POS LED LIGHT", "pur": 19},
+        {"ataDesc": "324402- HANDLE ASSEMBLY", "pur": 19},
+        {"ataDesc": "314108- PM NIC+PROC MODULE WITH CF", "pur": 19},
+        {"ataDesc": "262103- FIRE EXTING BOTTLE 150 CU IN", "pur": 19},
+        {"ataDesc": "242101- GENERATOR, INTEGRATED DRIVE", "pur": 18},
+        {"ataDesc": "741101- IGNITION -EXCITER", "pur": 17},
+        {"ataDesc": "273110- DISCONNECT DEVICE ASSY", "pur": 17},
+        {"ataDesc": "215112- PRI HEAT XCHNGER OUTLET TEMP", "pur": 17},
+        {"ataDesc": "731101- FUEL - PUMP", "pur": 16},
+        {"ataDesc": "278301- SLAT OUTBOARD SKEW SENSOR LH", "pur": 15},
+        {"ataDesc": "361111- FAN AIR VLV FOR NHA", "pur": 14},
+        {"ataDesc": "341101- ELECTRONIC INTEGRATED STDBY", "pur": 14},
+        {"ataDesc": "340209- RADIO RACK", "pur": 14},
+        {"ataDesc": "494201- STARTER CONTROLLER", "pur": 13},
+        {"ataDesc": "215119- PACK BYPASS VLV", "pur": 13},
+        {"ataDesc": "801005- STARTER CONTROL -VLV", "pur": 12},
+        {"ataDesc": "722110- FAN -BLADE", "pur": 12},
+        {"ataDesc": "573001- WING TIP ASSY", "pur": 12},
+        {"ataDesc": "464101- PRERECORDED ANNOUNCEMENT", "pur": 12},
+        {"ataDesc": "441101- PAX ADDRESS AND CABIN INTERPHN", "pur": 12},
+        {"ataDesc": "383104- AUTO DRAIN VLV, WATER", "pur": 12},
+        {"ataDesc": "383204- VACUUM TOILET ASSEMBLY - LH", "pur": 12},
+        {"ataDesc": "361203- VLV ASSY, BLEED AIR", "pur": 12},
+        {"ataDesc": "361106- TQ MOTOR CONTROLLER NAC VLV", "pur": 12},
+        {"ataDesc": "334503- POWER SUPPLY RED BEACON LED", "pur": 12},
+        {"ataDesc": "331202- DIMMER-4 CHANNELS, ELECTRICAL SYS ", "pur": 12},
+        {"ataDesc": "304101- LH MOTOR-CONVERTER", "pur": 12},
+        {"ataDesc": "291201- ACMP HYDRAULIC", "pur": 12},
+        {"ataDesc": "291101- EDP, HYDRAULIC", "pur": 12},
+        {"ataDesc": "274301- HORIZONTAL STAB ACT CONT", "pur": 12},
+        {"ataDesc": "270003- MODULE ASSY", "pur": 12},
+        {"ataDesc": "262401- EXTINGUISHER, FIRE", "pur": 12},
+        {"ataDesc": "246112- DISCRETE I/O MODULE, SPDA", "pur": 12},
+        {"ataDesc": "245110- AC POWER MODULE, SPDA", "pur": 12},
+        {"ataDesc": "801001- AIR TURBINE -STARTER", "pur": 11},
+        {"ataDesc": "291030- PRESSURE GAUGE / FILL POINT", "pur": 11},
+        {"ataDesc": "326201- PROXIMITY SENSOR", "pur": 10},
+        {"ataDesc": "380001- WATER WASTE SYSTEM CONT", "pur": 9},
+        {"ataDesc": "221101- GUIDANDE PANEL TRAY", "pur": 9},
+        {"ataDesc": "344204- WU 880 RADAR XCIEVER", "pur": 8},
+        {"ataDesc": "215113- PACK FLOW CONTROL VALVE", "pur": 8},
+        {"ataDesc": "495301- VLV - ANTI-SURGE", "pur": 7},
+        {"ataDesc": "212204- SENSOR", "pur": 7},
+        {"ataDesc": "772101- TRANSMITTER TERMINAL", "pur": 5},
+        {"ataDesc": "324105- PRESSURE TRANSDUCER", "pur": 4}
+      ]
+
+  // Getting array of ata to show along with selected ata in the middle.
+  xValues=getAxisValues(xSelect=ataColor, data=data)
+
+  // Calling main graph function
+  mainGraph(sortStatus= "y", aColor= ataColor, xSelect= xValues);
+}
+// ascending order sort
+function fn1() {
+  mainGraph(sortStatus= "y");
+}
+// descending order sort
+function fn2() {
+  mainGraph(sortStatus= "-y");
+}
+// function to switch in sort button
+var fn3 = (function() {
+  var first = true;
+  return function() {
+    first ? fn1() : fn2();
+    first = !first;
+  }
+})();
+
+function mainGraph(sortStatus= "-y", aColor= null, xSelect=[
+                "253112- COFFEE MAKER - 115V, 400HZ, 2785W",
+                "341301- INT PITOT/STATIC/AOA SENSOR"
+              ]){	  
+     // console.log("running main graph function with atacolor " + aColor + " and sorting " + sortStatus);
+      const spec = {
+    "params": [
+      {
+        "name": "scroll-view",
+        "value": {
+          "name": "brush",
+          "visible": 20,
+          "unit": "source_0_concat_1",
+          "field": "ataDesc",
+          "channel": "x",
+          "type": "E"
+        }
+      }
+    ],
+    "name": "source_0",
+    "data": {
+      "values": [
+        {"ataDesc": "253112- COFFEE MAKER - 115V, 400HZ, 2785W", "pur": 252},
+        {"ataDesc": "441301- PA HANDSET/CRADLE (WHITE)", "pur": 174},
+        {"ataDesc": "334702- AFT COMBO POSITION AND ANTI", "pur": 113},
+        {"ataDesc": "316101- EICAS DISPLAY UNIT (104)", "pur": 108},
+        {"ataDesc": "353002- 312 LITER OXYGEN BOTTLE", "pur": 95},
+        {"ataDesc": "324907- CARBON BRAKES ASSY", "pur": 91},
+        {"ataDesc": "252112- PAX SEAT, DOUBLE", "pur": 75},
+        {"ataDesc": "334303- FWD POSITION LED LIGHT RIGHT", "pur": 74},
+        {"ataDesc": "381107- FAUCET, WALL MOUNT, LAVATORY", "pur": 68},
+        {"ataDesc": "334701- EWT FWD ANTI-COL LED LIGHT", "pur": 62},
+        {"ataDesc": "251101- PILOT SEAT", "pur": 60},
+        {"ataDesc": "341501- SENSOR, TOTAL TEMP", "pur": 57},
+        {"ataDesc": "383103- DRAIN MAST, HEATED", "pur": 55},
+        {"ataDesc": "361101- BLEED PRSOV", "pur": 52},
+        {"ataDesc": "232403- TP4840 PRINTER", "pur": 52},
+        {"ataDesc": "351003- MASKASSY", "pur": 50},
+        {"ataDesc": "308101- ICE DETECTOR", "pur": 48},
+        {"ataDesc": "256004- LIFE JACKET", "pur": 47},
+        {"ataDesc": "525110- STRUCTURE, COCKPIT DOOR", "pur": 45},
+        {"ataDesc": "346102- CONTROL DISPLAY UNIT", "pur": 39},
+        {"ataDesc": "341301- INT PITOT/STATIC/AOA SENSOR", "pur": 39},
+        {"ataDesc": "293302- SW, HYDRAULIC FLUID TEMP", "pur": 38},
+        {"ataDesc": "753002- OPERABILITY BLEED START -VLV", "pur": 35},
+        {"ataDesc": "231204- VHF DIGITAL RADIO-VDR", "pur": 34},
+        {"ataDesc": "235112- DIGITAL AUDIO PANEL - AV-900", "pur": 29},
+        {"ataDesc": "343101- KRA", "pur": 28},
+        {"ataDesc": "314110- GENERIC I/O MODULE", "pur": 28},
+        {"ataDesc": "243608- BATTERY - 24V, 27 AH, NI-CD", "pur": 27},
+        {"ataDesc": "351002- BOX ASSY-STOWAGE, OXYGEN MASKS", "pur": 26},
+        {"ataDesc": "334304- EWT INTEGRATED LED LIGHT", "pur": 25},
+        {"ataDesc": "761105- THRUST CONTROL QUADRANT", "pur": 24},
+        {"ataDesc": "716110- INLET ASSY", "pur": 24},
+        {"ataDesc": "494101- EXCITER", "pur": 24},
+        {"ataDesc": "256007- EMERGENCY EVACUATION SLIDE", "pur": 24},
+        {"ataDesc": "324701- BRAKE TEMPERATURE SENSOR", "pur": 21},
+        {"ataDesc": "531403- NOSE RADOME", "pur": 20},
+        {"ataDesc": "343108- VIDL MODULE", "pur": 20},
+        {"ataDesc": "246102- DC POWER MODULE, SPDA", "pur": 20},
+        {"ataDesc": "242102- CONTROL UNITY, GENERATOR", "pur": 20},
+        {"ataDesc": "525109- ELEC-MECHANICAL DR LATCH", "pur": 19},
+        {"ataDesc": "493102- MODULE, FUEL", "pur": 19},
+        {"ataDesc": "334305- POWER SUPPLY ACL/POS LED LIGHT", "pur": 19},
+        {"ataDesc": "324402- HANDLE ASSEMBLY", "pur": 19},
+        {"ataDesc": "314108- PM NIC+PROC MODULE WITH CF", "pur": 19},
+        {"ataDesc": "262103- FIRE EXTING BOTTLE 150 CU IN", "pur": 19},
+        {"ataDesc": "242101- GENERATOR, INTEGRATED DRIVE", "pur": 18},
+        {"ataDesc": "741101- IGNITION -EXCITER", "pur": 17},
+        {"ataDesc": "273110- DISCONNECT DEVICE ASSY", "pur": 17},
+        {"ataDesc": "215112- PRI HEAT XCHNGER OUTLET TEMP", "pur": 17},
+        {"ataDesc": "731101- FUEL - PUMP", "pur": 16},
+        {"ataDesc": "278301- SLAT OUTBOARD SKEW SENSOR LH", "pur": 15},
+        {"ataDesc": "361111- FAN AIR VLV FOR NHA", "pur": 14},
+        {"ataDesc": "341101- ELECTRONIC INTEGRATED STDBY", "pur": 14},
+        {"ataDesc": "340209- RADIO RACK", "pur": 14},
+        {"ataDesc": "494201- STARTER CONTROLLER", "pur": 13},
+        {"ataDesc": "215119- PACK BYPASS VLV", "pur": 13},
+        {"ataDesc": "801005- STARTER CONTROL -VLV", "pur": 12},
+        {"ataDesc": "722110- FAN -BLADE", "pur": 12},
+        {"ataDesc": "573001- WING TIP ASSY", "pur": 12},
+        {"ataDesc": "464101- PRERECORDED ANNOUNCEMENT", "pur": 12},
+        {"ataDesc": "441101- PAX ADDRESS AND CABIN INTERPHN", "pur": 12},
+        {"ataDesc": "383104- AUTO DRAIN VLV, WATER", "pur": 12},
+        {"ataDesc": "383204- VACUUM TOILET ASSEMBLY - LH", "pur": 12},
+        {"ataDesc": "361203- VLV ASSY, BLEED AIR", "pur": 12},
+        {"ataDesc": "361106- TQ MOTOR CONTROLLER NAC VLV", "pur": 12},
+        {"ataDesc": "334503- POWER SUPPLY RED BEACON LED", "pur": 12},
+        {"ataDesc": "331202- DIMMER-4 CHANNELS, ELECTRICAL SYS ", "pur": 12},
+        {"ataDesc": "304101- LH MOTOR-CONVERTER", "pur": 12},
+        {"ataDesc": "291201- ACMP HYDRAULIC", "pur": 12},
+        {"ataDesc": "291101- EDP, HYDRAULIC", "pur": 12},
+        {"ataDesc": "274301- HORIZONTAL STAB ACT CONT", "pur": 12},
+        {"ataDesc": "270003- MODULE ASSY", "pur": 12},
+        {"ataDesc": "262401- EXTINGUISHER, FIRE", "pur": 12},
+        {"ataDesc": "246112- DISCRETE I/O MODULE, SPDA", "pur": 12},
+        {"ataDesc": "245110- AC POWER MODULE, SPDA", "pur": 12},
+        {"ataDesc": "801001- AIR TURBINE -STARTER", "pur": 11},
+        {"ataDesc": "291030- PRESSURE GAUGE / FILL POINT", "pur": 11},
+        {"ataDesc": "326201- PROXIMITY SENSOR", "pur": 10},
+        {"ataDesc": "380001- WATER WASTE SYSTEM CONT", "pur": 9},
+        {"ataDesc": "221101- GUIDANDE PANEL TRAY", "pur": 9},
+        {"ataDesc": "344204- WU 880 RADAR XCIEVER", "pur": 8},
+        {"ataDesc": "215113- PACK FLOW CONTROL VALVE", "pur": 8},
+        {"ataDesc": "495301- VLV - ANTI-SURGE", "pur": 7},
+        {"ataDesc": "212204- SENSOR", "pur": 7},
+        {"ataDesc": "772101- TRANSMITTER TERMINAL", "pur": 5},
+        {"ataDesc": "324105- PRESSURE TRANSDUCER", "pur": 4}
+      ]
+    },
+    "vconcat": [
+      {
+        "width": "1500",
+        "height": 250,
+        "mark": {"type": "bar", "size": 50},
+        "transform": [{"filter": {"param": "brush"}}],
+        "title": {"text": "Forecasting at Part Level", "offset": 20},
+        "encoding": {
+          "x": {
+            "field": "ataDesc",
+            "type": "nominal",
+            "sort": sortStatus,
+            "scale": {"bandSize": "fit"},
+            "axis": {"title": "", "labelLimit": "220", "labelAngle": -90}
+          },
+          "y": {
+            "field": "pur",
+            "type": "quantitative",
+            "axis": {"tickMinStep": 1}
+          },
+          "color": {
+          "condition": [
+            {
+              "value": "red",
+              "test": {
+                "field": "ataDesc",
+                "oneOf": [aColor]
+              }
+            }
+          ],
+          "value": "#ddd"
+        },
+          "tooltip": [
+            {"field": "ataDesc", "type": "nominal", "title": "ATA"},
+            {"field": "pur", "type": "quantitative", "title": "PUR"}
+          ]
+        }
+      },
+      {
+        "width": "1500",
+        "height": 70,
+        "mark": "bar",
+        "params": [
+          {
+            "name": "brush",
+            "select": {"type": "interval", "encodings": ["x"]},
+            "value": {
+              "x": xSelect,
+              "y": [0, 30]
+            }
+          }
+        ],
+        "encoding": {
+          "x": {
+            "field": "ataDesc",
+            "type": "nominal",
+            "sort": sortStatus,
+            "axis": {
+              "title": "",
+              "labelLimit": "0",
+              "labels": false,
+              "ticks": false
+            }
+          },
+          "y": {
+            "field": "pur",
+            "type": "quantitative",
+            "axis": {
+              "tickCount": 3,
+              "grid": false,
+              "title": "",
+              "labels": false,
+              "ticks": false
+            }
+          },
+          "color": {
+          "value": "#ddd"
+        }
+        }
+      }
+    ],"resolve": {"scale": {"shape": "independent", "color": "independent"}},
+    "config": {"concat": {"spacing": 10}}
+  };
+vegaEmbed("#vis", spec, {mode: "vega-lite"}).then((result) => {
+    result.view.addEventListener("click", function(event, item){
+      console.log(item.mark)
+      var clickedData = item.datum;
+    });
+  }).catch(console.warn);}
+
+  
+  function furtheChartFunction(idName){
+  const data= [
+      {
+        "Type": "type 1",
+        "Removals": 5,
+        "Pirep_Rate": 0.9,
+        "Marep_Rate": 0.9,
+        "Cancellation_Rate": 2,
+        "Month": "202001",
+        "Model": "E75",
+        "Delay_Rate": 0.56,
+        "URR_Rate": 1.2,
+        "ATA": "02-OPERATIONAL - NON TECHNICAL"
+      },
+      {"Type": "type 2",
+        "Removals": 6,
+        "Pirep_Rate": 1.9,
+        "Marep_Rate": 0.2,
+        "Cancellation_Rate": 2.5,
+        "Month": "202002",
+        "Model": "E75",
+        "Delay_Rate": 0.96,
+        "URR_Rate": 0.2,
+        "ATA": "02-OPERATIONAL - NON TECHNICAL"
+      },
+      {"Type": "type 2",
+        "Removals": 2,
+        "Pirep_Rate": 0.5,
+        "Marep_Rate": 0.5,
+        "Cancellation_Rate": 1.5,
+        "Month": "202003",
+        "Model": "E75",
+        "Delay_Rate": 0.76,
+        "URR_Rate": 0.8,
+        "ATA": "02-OPERATIONAL - NON TECHNICAL"
+      },
+      {"Type": "type 2",
+        "Removals": 2,
+        "Pirep_Rate": 0.5,
+        "Marep_Rate": 0.5,
+        "Cancellation_Rate": 1.5,
+        "Month": "202004",
+        "Model": "E75",
+        "Delay_Rate": 0.76,
+        "URR_Rate": 2,
+        "ATA": "02-OPERATIONAL - NON TECHNICAL"
+      },
+      {"Type": "type 4",
+        "Removals": 2,
+        "Pirep_Rate": 0.5,
+        "Marep_Rate": 0.5,
+        "Cancellation_Rate": 1.5,
+        "Month": "202005",
+        "Model": "E75",
+        "Delay_Rate": 0.76,
+        "URR_Rate": 2,
+        "ATA": "02-OPERATIONAL - NON TECHNICAL"
+      },
+      {"Type": "type 5",
+        "Removals": 2,
+        "Pirep_Rate": 0.5,
+        "Marep_Rate": 0.5,
+        "Cancellation_Rate": 1.5,
+        "Month": "202006",
+        "Model": "E75",
+        "Delay_Rate": 0.76,
+        "URR_Rate": 2,
+        "ATA": "02-OPERATIONAL - NON TECHNICAL"
+      },
+      {"Type": "type 5",
+        "Removals": 2,
+        "Pirep_Rate": 0.5,
+        "Marep_Rate": 0.5,
+        "Cancellation_Rate": 1.5,
+        "Month": "202007",
+        "Model": "E75",
+        "Delay_Rate": 0.76,
+        "URR_Rate": 2,
+        "ATA": "02-OPERATIONAL - NON TECHNICAL"
+      }
+    ];
+  breakSys(data);  
+}
+
+function breakSys(data){
+  const remo = {
+  "height": 250,
+  "width": "container",
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "data": { 
+    "values": data
+  },
+  "encoding": {
+    "y": {"field": "Type", "axis":{
+      "labelFontSize": 15,
+      "titleFontSize":15}},
+    "x": {
+      "field": "Removals",
+      "aggregate": "sum", 
+      "title": "June",
+      "axis":{
+      "labelFontSize": 15,
+      "titleFontSize":15}
+    },
+    "color": {
+      "datum": "June",
+      "scale": {
+        "range": ["lightgrey"]
+      },
+      "legend":{"labelFontSize":15}
+    }
+  },
+  "layer": [{
+  "mark": {"type": "bar", "tooltip": true}},
+  {"mark": {
+      "type": "text",
+      "align": "left",
+      "baseline": "middle",
+      "dx": 3,
+      "fontSize": 15
+    },
+    "encoding": {
+      "text": {"field": "Removals",
+      "aggregate": "sum"},
+      "color":{ "value": "black"}
+    }}],
+  "config": {
+    "legend": {
+      "orient": "bottom",
+      "layout": {"bottom": {"anchor": "middle"}}
+    }
+  }
+}
+
+;
+vegaEmbed("#removals", remo, {mode: "vega-lite"}).then(console.log).catch(console.warn);
+}
+  </script>
