@@ -43,7 +43,6 @@ function getAxisValues(xSelect, data){
   });
   return final
 }
-
 function detectChange(ataSelected) {
   const ataColor = ataSelected.value;
   var data = [
@@ -134,10 +133,8 @@ function detectChange(ataSelected) {
         {"ataDesc": "772101- TRANSMITTER TERMINAL", "pur": 5},
         {"ataDesc": "324105- PRESSURE TRANSDUCER", "pur": 4}
       ]
-
   // Getting array of ata to show along with selected ata in the middle.
   xValues=getAxisValues(xSelect=ataColor, data=data)
-
   // Calling main graph function
   mainGraph(sortStatus= "y", aColor= ataColor, xSelect= xValues);
 }
